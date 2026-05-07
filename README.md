@@ -1,90 +1,91 @@
+Simplified Chinese: [`readme_ZH.md`](readme_ZH.md).
+
 # Security Optimization of Communication for IRS-UAV Enabled Intelligent Transportation System
 
-仿真代码目录 **`security_optimization_irs_uav_its`**。
+Simulation code package **`security_optimization_irs_uav_its`**.
 
-本目录提供 **IRS 辅助 UAV** 场景下的 **通感一体化（ISAC）** 仿真环境与 **混合离散/连续动作** 的 DRL 实现，用于安全与感知联合资源分配实验。
+This directory provides an **integrated sensing and communication (ISAC)** simulation environment in an **IRS-assisted multi-UAV** setting, together with **hybrid discrete/continuous-action** deep reinforcement learning (DRL) agents for experiments on **joint secure communication and radar sensing** resource allocation.
 
-## 建模要点
+## Modeling highlights
 
-- **网络拓扑**：BS-MEC（多天线）服务地面合法用户；**D-UAV** 负责数据采集与卸载，**I-UAV** 携带 IRS，同时辅助 **D-UAV→BS-MEC 卸载链路** 与 **下行 ISAC**；存在窃听者（EAV）与待感知目标。
-- **波形与发射**：下行采用 **OTFS-OFDMA**，在延迟–多普勒资源网格上做多用户 ISAC；发射信号包含 **多用户有源波束** 与 **人工噪声（AN）**；仿真中 BS 侧采用 **ZF 预编码 + 感知感知的零空间 AN**，在保障用户 SINR 的同时抑制窃听端并约束发射协方差。
-- **IRS 与信道**：IRS 相移可优化级联信道；链路建模区分 **IRS 辅助链路的 LoS 主导** 与 **直射地面的 NLoS 主导**；可选 **城市/道路热点交通场**，对直射衰减、IRS 阴影与感知杂波等施加与无人机位置相关的调制。
-- **MEC 与能耗**：**部分卸载比例** 与飞行/悬停能耗、时隙内可行性耦合，进入奖励中的惩罚项。
-- **感知与 ISAC 指标**：用目标方向 **感知效用（如对 S_T 的对数刻画）** 与 **发射波束方向图相对期望图的 MSE** 等将雷达侧性能写入目标，使保密与感知 **联合优化** 而非仅通信速率。
-- **混合动作**：**离散**——I-UAV / D-UAV 在候选部署点集合上选点；**连续**——功率分配、IRS 相位、AN 占功率比例、卸载比等；状态含通道/IRS 对齐、几何与（可选）交通等 **异构特征**。
+- **Network topology**: A multi-antenna BS-MEC serves ground legitimate users; a **D-UAV** collects and offloads data; an **I-UAV** carries an IRS and assists both the **D-UAV→BS-MEC offloading link** and **downlink ISAC**; an eavesdropper (EAV) and a sensing target are present.
+- **Waveform and transmission**: Downlink uses **OTFS-OFDMA** with multi-user ISAC on a delay–Doppler resource grid. The transmit signal includes **multi-user active beamforming** and **artificial noise (AN)**. At the BS, the simulator uses **ZF precoding** and **sensing-aware null-space AN** to target user SINRs while limiting leakage to the eavesdropper and shaping the transmit covariance.
+- **IRS and channels**: IRS phase shifts reshape cascaded channels. Links distinguish **LoS-dominated IRS-assisted paths** from **NLoS-dominated direct ground paths**. An optional **urban/road congestion traffic field** modulates direct loss, IRS shadowing, and sensing clutter as functions of UAV positions.
+- **MEC and energy**: **Partial offloading ratios** are coupled with flight/hover energy and per-slot feasibility, and appear as penalty terms in the reward.
+- **Sensing and ISAC metrics**: Target-direction **sensing utility** (e.g., log-type in $`S_{\mathrm{T}}`$) and **MSE of the transmit beampattern versus a desired pattern** encode radar-side performance so secrecy and sensing are **jointly optimized**, not communication rate alone.
+- **Hybrid actions**: **Discrete**—I-UAV / D-UAV **deployment** over candidate sites; **continuous**—power split, IRS phase, AN power share, offloading ratio, etc.; the state stacks **heterogeneous** summaries of channels, IRS alignment, geometry, and optional traffic.
 
-## 技术特点
+## Technical features
 
-- **问题层面**：在 IRS–UAV ITS 设定下，将 **UAV 部署、OTFS-OFDMA 侧等效控制、IRS 相位、AN 与功率分配、MEC 卸载** 放在同一 **通感 + 物理层安全** 目标下，显式包含 **保密指标与波束/感知质量**。
-- **方法层面**：**Attention PPO（APPO-SAC）** 带 **特征注意力**；**混合动作** 由 **离散部署头** 与 **连续 SAC 分支**（波束份额、IRS、AN、卸载）配合；可选用 **GAE** 稳定 PPO 更新。
-- **波形与场景**：**OTFS-OFDMA ISAC**；支持 **双机 UAV + IRS**、可选 **交通拥塞场** 调制信道与感知杂波。
-- **实验与范围**：训练收敛行为与多种 DRL 基线（Hybrid-SAC、PPO-SAC、DDPG-DQN 等）可对拍 sweep。**本仓库不包含** AO、Equal-Power 等非学习基线实现。
+- **Problem**: Under an IRS–UAV ITS setup, **UAV placement, OTFS-OFDMA-side equivalent control, IRS phase, AN and power allocation, and MEC offloading** share one **ISAC + physical-layer security** objective with explicit **secrecy and beam/sensing quality** terms.
+- **Methods**: **Attention PPO (APPO-SAC)** with **feature attention**; **hybrid actions** from a **discrete deployment head** and a **continuous SAC branch** (beam shares, IRS, AN, offloading); optional **GAE** for PPO stability.
+- **Waveform and scenario**: **OTFS-OFDMA ISAC**; **two UAVs + IRS**; optional **congestion field** modulating channels and sensing clutter.
+- **Experiments**: Training curves and sweeps can be compared with several DRL baselines (Hybrid-SAC, PPO-SAC, DDPG-DQN, etc.). **This repository does not** include non-learning baselines such as AO or Equal-Power.
 
-## MDP：状态空间、动作空间与奖励
+## MDP: state, action, and reward
 
-本节对应 **`environment.py`** 中的观测、动作与奖励；状态对高维信道做了 **统计摘要**。
+This section matches observations, actions, and rewards in **`environment.py`**. The state uses **statistical summaries** of high-dimensional channels.
 
+### State space $`\mathcal{S}`$
 
-### 状态空间 $`\mathcal{S}`$
-
-**符号化状态（高层）**（时隙 $`i`$），汇集信道、感知、交通与历史信息：
+**Symbolic state (high level)** at slot $`i`$, aggregating channel, sensing, traffic, and history:
 
 ```math
 s_i = \lbrace \{\mathbf{h}_{D,I}[i]\},\{\mathbf{G}_{B,I}[i]\},\{\mathbf{H}_{u_m}[i]\},\mathbf{H}_{E}[i],\mathbf{H}_{\mathrm{T}}[i],\varrho(Q_I[i],i),\varrho(Q_D[i],i),\{Q_{u_m}[i]\},\{\varrho(Q_{u_m}[i],i)\},L(\zeta,\mathbf{R}_{\mathbf{x}_B}[i]),a_{i-1},r_i \rbrace,
 ```
 
-其中 $`\varrho(\cdot,i)`$ 为交通拥塞场；$`L(\zeta,\mathbf{R}_{\mathbf{x}_B}[i])`$ 表示与期望波束图相关的失配（实现中通过波束图 MSE 进入 **奖励** 而非直接逐元素展开在状态中）；$`a_{i-1}, r_i`$ 为上一动作与当前即时奖励记忆。
+Here $`\varrho(\cdot,i)`$ is the traffic congestion field; $`L(\zeta,\mathbf{R}_{\mathbf{x}_B}[i])`$ is mismatch vs. a desired beampattern (in code, beampattern MSE enters the **reward** rather than a full per-entry expansion in the state); $`a_{i-1}, r_i`$ memorize the previous action and instantaneous reward.
 
-**本仓库观测向量** `env._get_state()` 由下列 **实值特征** 拼接（复信道先做幅度/相位 **压缩统计**，并含 IRS **对齐相位提示**）：
+**Observation vector** from `env._get_state()` **concatenates** the following **real features** (complex channels are compressed by magnitude/phase **statistics**, plus IRS **alignment hints**):
 
-1. 每个用户 $`m`$：合法复合信道 $`\mathbf{H}_{u_m}`$（取 $`\mathbf{\Theta}=\mathbf{I}`$）的 **平均幅度、平均相位**（各 1 维，共 $`2M`$ 维）；  
-2. 窃听信道 $`\mathbf{H}_E`$：**平均幅度、平均相位**（2 维）；  
-3. 感知响应 $`\mathbf{H}_{\mathrm{T}}`$：**平均幅度**（1 维）；  
-4. 卸载有效通道 $`| \mathbf{h}_{I,B}^H \mathbf{\Theta}\,\mathbf{h}_{D,I} |`$（零相位时，1 维）；  
-5. 各用户 IRS **逐单元对齐角** $`\angle(\mathbf{s}_{\mathrm{IRS},m}) - \angle(\mathbf{s}_{\mathrm{IRS,BI}})`$ 归一化到 $`[-1,1]`$（共 $`M N_{\mathrm{IRS}}`$ 维）；窃听对齐（$`N_{\mathrm{IRS}}`$ 维）；  
-6. I-UAV / D-UAV **水平位置** $`q_I, q_D`$ 除以 `AREA_RANGE`（4 维）；  
-7. 若启用 **复杂交通**（`COMPLEX_TRAFFIC=1`）：两架 UAV 处 $`\varrho`$、各用户位置（归一化）及其 $`\varrho`$（共 $`2 + 3M`$ 维）；  
-8. 时隙进度 $`i / T_{\mathrm{ep}}`$（1 维）、**上一时刻奖励** $`r_{i-1}`$（1 维）。
+1. Per user $`m`$: **mean magnitude and mean phase** of the legitimate composite channel $`\mathbf{H}_{u_m}`$ with $`\mathbf{\Theta}=\mathbf{I}`$ (1 + 1 dims, $`2M`$ total);  
+2. Eavesdropper channel $`\mathbf{H}_E`$: **mean magnitude and mean phase** (2 dims);  
+3. Sensing response $`\mathbf{H}_{\mathrm{T}}`$: **mean magnitude** (1 dim);  
+4. Offloading effective channel $`| \mathbf{h}_{I,B}^H \mathbf{\Theta}\,\mathbf{h}_{D,I} |`$ at zero phase (1 dim);  
+5. Per-user IRS **per-element alignment** $`\angle(\mathbf{s}_{\mathrm{IRS},m}) - \angle(\mathbf{s}_{\mathrm{IRS,BI}})`$ scaled to $`[-1,1]`$ ($`M N_{\mathrm{IRS}}`$ dims); eavesdropper alignment ($`N_{\mathrm{IRS}}`$ dims);  
+6. I-UAV / D-UAV **horizontal positions** $`q_I, q_D`$ normalized by `AREA_RANGE` (4 dims);  
+7. If **complex traffic** is on (`COMPLEX_TRAFFIC=1`): $`\varrho`$ at both UAVs, each user’s (normalized) position and its $`\varrho`$ ($`2 + 3M`$ dims);  
+8. Slot progress $`i / T_{\mathrm{ep}}`$ (1 dim) and **previous reward** $`r_{i-1}`$ (1 dim).
 
-记 $`M=`$ `NUM_USERS`，$`N_I=`$ `NUM_DP_I`，$`N_D=`$ `NUM_DP_D`，$`N=`$ `n_irs`，则：
+Let $`M=`$ `NUM_USERS`, $`N_I=`$ `NUM_DP_I`, $`N_D=`$ `NUM_DP_D`, $`N=`$ `n_irs`. Then:
 
 ```math
-d_s = \underbrace{2M + 4 + (M+1)N + 4 + 2}_{\text{与交通无关部分}} + \underbrace{(2 + 3M)\cdot \mathbb{1}_{\text{COMPLEX}}}_{\text{可选}} = 2M + (M+1)N + 10 + (2+3M)\cdot \mathbb{1}_{\text{COMPLEX}}.
+d_s = \underbrace{2M + 4 + (M+1)N + 4 + 2}_{\text{traffic-independent part}} + \underbrace{(2 + 3M)\cdot \mathbb{1}_{\text{COMPLEX}}}_{\text{optional}} = 2M + (M+1)N + 10 + (2+3M)\cdot \mathbb{1}_{\text{COMPLEX}}.
 ```
 
-默认 $`M=2, N=16`$ 且无复杂交通时，$`d_s=62`$（等于 `env.state_dim`）。属性：`env.state_dim`、`env.cont_dim`、`env.disc_n_I`、`env.disc_n_D`。
+With default $`M=2, N=16`$ and no complex traffic, $`d_s=62`$ (matches `env.state_dim`). See also `env.cont_dim`, `env.disc_n_I`, `env.disc_n_D`.
 
-### 动作空间 $`\mathcal{A}`$
+### Action space $`\mathcal{A}`$
 
-**完整射频表征下的联合动作**（时隙 $`i`$：逐 RE 波束矩阵 + 协方差等）：
+**Full RF joint action** at slot $`i`** (per-RE beam matrices, covariance, etc.):
 
 ```math
 a_i = \lbrace \mathbf{q}_I[i],\mathbf{q}_D[i],\{\mathbf{W}[g,i]\}_{g=1}^{N_\tau N_\nu},\mathbf{\Theta}_n[i],\alpha[i],\mathbf{R}_z[i] \rbrace.
 ```
 
-**本仓库接口**（PPO-SAC 等智能体一致）：  
+**Environment API** (consistent with PPO-SAC-style agents):
 
-- **离散部分**：$`a^d_i = (d_I,d_D)`$，其中 $`d_I\in\{0,\ldots,N_I-1\}`$、$`d_D\in\{0,\ldots,N_D-1\}`$，对应 I-UAV / D-UAV 在候选点集 `dp_I`、`dp_D` 中的索引。  
-- **连续部分**：$`\mathbf{u}_i\in[-1,1]^{d_c}`$，$`d_c = M + N + 2`$（`env.cont_dim`）。环境 `decode_action` 将其映射为物理量：
+- **Discrete**: $`a^d_i = (d_I,d_D)`$ with $`d_I\in\{0,\ldots,N_I-1\}`$, $`d_D\in\{0,\ldots,N_D-1\}`$, indices into `dp_I`, `dp_D`.  
+- **Continuous**: $`\mathbf{u}_i\in[-1,1]^{d_c}`$, $`d_c = M + N + 2`$ (`env.cont_dim`). `decode_action` maps to:
 
-  - **用户功率份额**：$`\mathbf{p}_f = \mathrm{softmax}(\mathrm{clip}(\mathbf{u}_{1:M}))`$（与总功率/AN 分割一起在 `_build_beamforming` 中使用）；  
-  - **IRS 相位**：$`\phi_n = \pi(\mathbf{u}_{M:M+N}+1) \in [0,2\pi]`$；  
-  - **AN 功率占比**：$`f_{\mathrm{AN}} = \mathrm{clip}((u_{M+N}+1)/2,\,[0.05,0.5])`$；  
-  - **卸载比例**：$`\alpha = \mathrm{clip}((u_{d_c}+1)/2,\,[0.05,0.95])`$。
+  - **User power shares**: $`\mathbf{p}_f = \mathrm{softmax}(\mathrm{clip}(\mathbf{u}_{1:M}))`$ (used with total power / AN split in `_build_beamforming`);  
+  - **IRS phase**: $`\phi_n = \pi(\mathbf{u}_{M:M+N}+1) \in [0,2\pi]`$;  
+  - **AN power fraction**: $`f_{\mathrm{AN}} = \mathrm{clip}((u_{M+N}+1)/2,\,[0.05,0.5])`$;  
+  - **Offloading ratio**: $`\alpha = \mathrm{clip}((u_{d_c}+1)/2,\,[0.05,0.95])`$.
 
-下行 **ZF 波束** 与 **零空间 AN 协方差** 在环境中由 $`(\mathbf{p}_f,\phi,f_{\mathrm{AN}})`$ 与当前信道 **解析生成**，网络不直接输出 $`\mathbf{W}[g]`$、$`\mathbf{R}_z`$ 的全部复元素，从而压缩连续动作维数。
+Downlink **ZF beams** and **null-space AN covariance** are **generated analytically** in the environment from $`(\mathbf{p}_f,\phi,f_{\mathrm{AN}})`$ and current channels; the network does not output every entry of $`\mathbf{W}[g]`$, $`\mathbf{R}_z`$, which keeps the continuous dimension small.
 
-### 奖励函数
+### Reward
 
-**即时奖励（加权结构）**：
+**Instantaneous reward (weighted)**:
 
 ```math
 r_i=\omega_1\sum_{m=1}^{M}R^{\mathrm{Sec}}_{u_m}[i]+\omega_2 S_{\mathrm{T}}[i]-\omega_3 L(\zeta,\mathbf{R}_{\mathbf{x}_B}[i])-\omega_4 \Phi_i,
 ```
 
-其中 $`R^{\mathrm{Sec}}_{u_m}`$ 为合法速率与窃听速率差（取非负后求和），$`S_{\mathrm{T}}`$ 为感知效用，$`L`$ 为波束图失配项，$`\Phi_i`$ 为能耗/时隙/飞行可行性及（可选）交通风险的惩罚。
+where $`R^{\mathrm{Sec}}_{u_m}`$ is the non-negative excess of legitimate rate over eavesdropping rate, $`S_{\mathrm{T}}`$ is sensing utility, $`L`$ is beampattern mismatch, and $`\Phi_i`$ penalizes energy, timing/flight feasibility, and optional traffic risk.
 
-**实现中**（`config.py`：`OMEGA_*`、`R_SEC_NORM`、`S_T_NORM`、`BP_MSE_NORM`、`PENALTY_NORM`、`REWARD_SCALE`）使用 **归一化标度** 的稳定形式：
+**In code** (`config.py`: `OMEGA_*`, `R_SEC_NORM`, `S_T_NORM`, `BP_MSE_NORM`, `PENALTY_NORM`, `REWARD_SCALE`) a **normalized** form is used:
 
 ```math
 r_i = \eta (
@@ -95,37 +96,37 @@ r_i = \eta (
 ),
 ```
 
-其中 $`R_{\mathrm{sec}}`$ 为系统保密和速率（各用户保密速率非负部分之和），$`S_{\mathrm{T}}=\log_2(1+\Gamma_{\mathrm{T}}^{\mathrm{ITS}})`$（交通场可调制感知 SNR），$`\mathrm{MSE}_{\mathrm{bp}}`$ 为角度格上相对期望波束的误差；$`\Phi_i`$ 含 $`E_D,E_I`$ 超限、飞行时隙违约及 `TRAFFIC_UAV_RISK_PENALTY` 等；$`\eta=`$ `REWARD_SCALE`。最后对 $`r_i`$ 做 `nan_to_num` 与幅值截断。
+with $`R_{\mathrm{sec}}`$ the sum-secrecy rate (non-negative per-user secrecy rates), $`S_{\mathrm{T}}=\log_2(1+\Gamma_{\mathrm{T}}^{\mathrm{ITS}})`$ (sensing SNR can be modulated by the traffic field), $`\mathrm{MSE}_{\mathrm{bp}}`$ angular-grid error vs. a desired beam; $`\Phi_i`$ includes $`E_D,E_I`$ violations, flight/slot violations, and `TRAFFIC_UAV_RISK_PENALTY`; $`\eta=`$ `REWARD_SCALE`. $`r_i`$ is passed through `nan_to_num` and clipped.
 
-折扣因子 $`\gamma`$ 在 `config.GAMMA`（默认 0.99），用于 DRL 更新。
+Discount $`\gamma`$ is `config.GAMMA` (default 0.99) for DRL updates.
 
-## 功能概览
+## Package overview
 
-- **`environment.py`**： IRS-UAV ISAC 环境（ZF 预编码、人工噪声、感知波束指标、流量场与可选 imperfect CSI 等）。
-- **`agents.py`**：学习型智能体  
-  **PPO-SAC**、**PPO-SAC-GAE**、**Attention PPO-SAC（APPO-SAC）**、**Hybrid-Action SAC**、**DDPG-DQN**。
-- **`networks.py`**：与上述算法配套的神经网络模块（含注意力编码器版本）。
-- **`config.py`**：信道几何、OTFS-OFDMA、奖励权重、DRL 超参数等（默认值见文件内说明，部分项可通过环境变量微调）。
-- **`train.py`**：多阶段训练脚本（收敛曲线、IRS 规模扫描、功率扫描），结果写入本目录下的 `results.pkl`。
+- **`environment.py`**: IRS-UAV ISAC environment (ZF, AN, sensing/beam metrics, traffic field, optional imperfect CSI).
+- **`agents.py`**: **PPO-SAC**, **PPO-SAC-GAE**, **Attention PPO-SAC (APPO-SAC)**, **Hybrid-Action SAC**, **DDPG-DQN**.
+- **`networks.py`**: Neural modules for the above (including attention encoders).
+- **`config.py`**: Geometry, OTFS-OFDMA, reward weights, DRL hyperparameters (defaults and env-var overrides documented in-file).
+- **`train.py`**: Multi-stage training (convergence, IRS-size sweep, power sweep); results saved to `results.pkl` in this folder.
 
-## 环境依赖
+## Requirements
 
-- Python 3.8+（建议）
-- 见 `requirements.txt`：`numpy`、`PyTorch`
+- Python 3.8+ recommended
+- See `requirements.txt`: `numpy`, `PyTorch`
 
-安装示例：
+Install:
 
 ```bash
 pip install -r requirements.txt
 ```
 
-若有 GPU，请按 [PyTorch 官网](https://pytorch.org/) 选择匹配的 CUDA 版本安装。
+For GPU, pick a matching CUDA build from the [PyTorch website](https://pytorch.org/).
 
-## 目录结构（简要）
+## Layout
 
 ```
 security_optimization_irs_uav_its/
   README.md
+  readme_ZH.md
   requirements.txt
   __init__.py
   config.py
@@ -133,32 +134,32 @@ security_optimization_irs_uav_its/
   agents.py
   networks.py
   train.py
-  figures/          # 随代码发布的示意图与示例结果图
+  figures/          # diagrams and example result plots
     MANIFEST.txt
 ```
 
-## 运行训练
+## Training
 
-**请在本目录的上一级**（即包含 `security_optimization_irs_uav_its` 文件夹的仓库根目录）执行：
+Run from the **parent directory of** `security_optimization_irs_uav_its` (repository root that contains this package):
 
 ```bash
-# 完整实验（耗时较长）
+# Full experiment (longer run)
 python -m security_optimization_irs_uav_its.train
 
-# 快速冒烟测试（更少 episode / 更小扫描集合）
+# Quick smoke test (fewer episodes / smaller sweeps)
 python -m security_optimization_irs_uav_its.train --quick
 ```
 
-等价写法：
+Equivalent:
 
 ```bash
 python security_optimization_irs_uav_its/train.py
 python security_optimization_irs_uav_its/train.py --quick
 ```
 
-训练结束后会在 `security_optimization_irs_uav_its/results.pkl` 中保存汇总结果。
+Summaries are written to `security_optimization_irs_uav_its/results.pkl`.
 
-## 在代码中使用环境与智能体
+## Using the environment and agents in code
 
 ```python
 from security_optimization_irs_uav_its import ISACEnv, PPOSACAgent, AttentionPPOSACAgent
@@ -172,32 +173,33 @@ aI, aD, cont, _ = agent.select_action(s)
 s2, r, done, info = env.step(aI, aD, cont)
 ```
 
-## 配置说明（节选）
+## Configuration (excerpt)
 
-`config.py` 中部分行为可通过环境变量覆盖，例如：
+Some `config.py` behavior can be overridden via environment variables:
 
-| 环境变量 | 含义（简述） |
-|----------|----------------|
-| `ISAC_SHOWCASE_IRS` | IRS 与直射链路对比强度（默认偏“展示”模式） |
-| `ISAC_COMPLEX_TRAFFIC` | 是否启用道路/热点等交通场模型 |
-| `ISAC_BASELINE_IMPERFECT_ZF_CSI` | 与 `ISACEnv(..., imperfect_zf_csi=True)` 配合的 ZF CSI 误差开关与强度 |
+| Variable | Role |
+|----------|------|
+| `ISAC_SHOWCASE_IRS` | Strength of IRS vs. direct link contrast (defaults to a “showcase” bias). |
+| `ISAC_COMPLEX_TRAFFIC` | Enable road/hotspot-style traffic field model. |
+| `ISAC_BASELINE_IMPERFECT_ZF_CSI` | ZF CSI error toggle/strength with `ISACEnv(..., imperfect_zf_csi=True)`. |
 
-详细注释见 `config.py` 与 `environment.py` 文件内说明。
+See comments in `config.py` and `environment.py`.
 
-## 随附图片（`figures/`）
+## Figures (`figures/`)
 
-见 `figures/MANIFEST.txt`，当前包含：
+See `figures/MANIFEST.txt`. Currently includes:
 
-- 系统/场景示意图：`system_model.jpg`
-- 算法框架图：`algorithm_framework.png`
-- 训练收敛示意：`training_convergence.png`
-- ISAC 归一化波束图：`isac_beampattern_detection.png`
+- System/scenario sketch: `system_model.jpg`
+- Algorithm block diagram: `algorithm_framework.png`
+- Training convergence example: `training_convergence.png`
+- ISAC normalized beampattern: `isac_beampattern_detection.png`
 
-## 开源与引用
+## License and citation
 
-使用本仓库请注明来源与仓库链接。需要许可证时请在仓库根目录自行添加 `LICENSE`。
+- **No `LICENSE` file is bundled**; add one at the repo root if you need explicit terms.
+- If you use this code, please cite or credit the repository you obtained it from.
 
-## 说明
+## Notes
 
-- **不包含** AO / Equal-Power 等非学习基线智能体。
-- 其他作图与后处理若存在于上层工程目录（如 `simulation/`），可自行对接。
+- **Not included**: AO / Equal-Power and other **non-learning** baseline agents.
+- Additional plotting or post-processing may live in a parent project (e.g. `simulation/`); wire them up as needed.
