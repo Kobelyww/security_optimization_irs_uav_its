@@ -24,79 +24,79 @@
 
 本节对应 **`environment.py`** 中的观测、动作与奖励；状态对高维信道做了 **统计摘要**。
 
-### 状态空间 \(\mathcal{S}\)
+### 状态空间 $\mathcal{S}$
 
-**符号化状态（高层）**（时隙 \(i\)），汇集信道、感知、交通与历史信息：
+**符号化状态（高层）**（时隙 $i$），汇集信道、感知、交通与历史信息：
 
-\[
+$$
 s_i = \big\{\{\mathbf{h}_{D,I}[i]\},\{\mathbf{G}_{B,I}[i]\},\{\mathbf{H}_{u_m}[i]\},\mathbf{H}_{E}[i],\mathbf{H}_{\mathrm{T}}[i],\varrho(Q_I[i],i),\varrho(Q_D[i],i),\{Q_{u_m}[i]\},\{\varrho(Q_{u_m}[i],i)\},L(\zeta,\mathbf{R}_{\mathbf{x}_B}[i]),a_{i-1},r_i\big\},
-\]
+$$
 
-其中 \(\varrho(\cdot,i)\) 为交通拥塞场；\(L(\zeta,\mathbf{R}_{\mathbf{x}_B}[i])\) 表示与期望波束图相关的失配（实现中通过波束图 MSE 进入 **奖励** 而非直接逐元素展开在状态中）；\(a_{i-1},r_i\) 为上一动作与当前即时奖励记忆。
+其中 $\varrho(\cdot,i)$ 为交通拥塞场；$L(\zeta,\mathbf{R}_{\mathbf{x}_B}[i])$ 表示与期望波束图相关的失配（实现中通过波束图 MSE 进入 **奖励** 而非直接逐元素展开在状态中）；$a_{i-1}, r_i$ 为上一动作与当前即时奖励记忆。
 
 **本仓库观测向量** `env._get_state()` 由下列 **实值特征** 拼接（复信道先做幅度/相位 **压缩统计**，并含 IRS **对齐相位提示**）：
 
-1. 每个用户 \(m\)：合法复合信道 \(\mathbf{H}_{u_m}\)（取 \(\mathbf{\Theta}=\mathbf{I}\)）的 **平均幅度、平均相位**（各 1 维，共 \(2M\) 维）；  
-2. 窃听信道 \(\mathbf{H}_E\)：**平均幅度、平均相位**（2 维）；  
-3. 感知响应 \(\mathbf{H}_{\mathrm{T}}\)：**平均幅度**（1 维）；  
-4. 卸载有效通道 \(| \mathbf{h}_{I,B}^H \mathbf{\Theta}\,\mathbf{h}_{D,I} |\)（零相位时，1 维）；  
-5. 各用户 IRS **逐单元对齐角** \(\angle(\mathbf{s}_{\mathrm{IRS},m}) - \angle(\mathbf{s}_{\mathrm{IRS,BI}})\) 归一化到 \([-1,1]\)（共 \(M N_{\mathrm{IRS}}\) 维）；窃听对齐（\(N_{\mathrm{IRS}}\) 维）；  
-6. I-UAV / D-UAV **水平位置** \(q_I,q_D\) 除以 `AREA_RANGE`（4 维）；  
-7. 若启用 **复杂交通**（`COMPLEX_TRAFFIC=1`）：两架 UAV 处 \(\varrho\)、各用户位置（归一化）及其 \(\varrho\)（共 \(2 + 3M\) 维）；  
-8. 时隙进度 \(i / T_{\mathrm{ep}}\)（1 维）、**上一时刻奖励** \(r_{i-1}\)（1 维）。
+1. 每个用户 $m$：合法复合信道 $\mathbf{H}_{u_m}$（取 $\mathbf{\Theta}=\mathbf{I}$）的 **平均幅度、平均相位**（各 1 维，共 $2M$ 维）；  
+2. 窃听信道 $\mathbf{H}_E$：**平均幅度、平均相位**（2 维）；  
+3. 感知响应 $\mathbf{H}_{\mathrm{T}}$：**平均幅度**（1 维）；  
+4. 卸载有效通道 $| \mathbf{h}_{I,B}^H \mathbf{\Theta}\,\mathbf{h}_{D,I} |$（零相位时，1 维）；  
+5. 各用户 IRS **逐单元对齐角** $\angle(\mathbf{s}_{\mathrm{IRS},m}) - \angle(\mathbf{s}_{\mathrm{IRS,BI}})$ 归一化到 $[-1,1]$（共 $M N_{\mathrm{IRS}}$ 维）；窃听对齐（$N_{\mathrm{IRS}}$ 维）；  
+6. I-UAV / D-UAV **水平位置** $q_I, q_D$ 除以 `AREA_RANGE`（4 维）；  
+7. 若启用 **复杂交通**（`COMPLEX_TRAFFIC=1`）：两架 UAV 处 $\varrho$、各用户位置（归一化）及其 $\varrho$（共 $2 + 3M$ 维）；  
+8. 时隙进度 $i / T_{\mathrm{ep}}$（1 维）、**上一时刻奖励** $r_{i-1}$（1 维）。
 
-记 \(M=\) `NUM_USERS`，\(N_I=\) `NUM_DP_I`，\(N_D=\) `NUM_DP_D`，\(N=\) `n_irs`，则：
+记 $M=$ `NUM_USERS`，$N_I=$ `NUM_DP_I`，$N_D=$ `NUM_DP_D`，$N=$ `n_irs`，则：
 
-\[
+$$
 d_s = \underbrace{2M + 4 + (M+1)N + 4 + 2}_{\text{与交通无关部分}} + \underbrace{(2 + 3M)\cdot \mathbb{1}_{\text{COMPLEX}}}_{\text{可选}} = 2M + (M+1)N + 10 + (2+3M)\cdot \mathbb{1}_{\text{COMPLEX}}.
-\]
+$$
 
-默认 \(M=2,N=16\) 且无复杂交通时，\(d_s=62\)（等于 `env.state_dim`）。属性：`env.state_dim`、`env.cont_dim`、`env.disc_n_I`、`env.disc_n_D`。
+默认 $M=2, N=16$ 且无复杂交通时，$d_s=62$（等于 `env.state_dim`）。属性：`env.state_dim`、`env.cont_dim`、`env.disc_n_I`、`env.disc_n_D`。
 
-### 动作空间 \(\mathcal{A}\)
+### 动作空间 $\mathcal{A}$
 
-**完整射频表征下的联合动作**（时隙 \(i\)：逐 RE 波束矩阵 + 协方差等）：
+**完整射频表征下的联合动作**（时隙 $i$：逐 RE 波束矩阵 + 协方差等）：
 
-\[
+$$
 a_i = \big\{\mathbf{q}_I[i],\mathbf{q}_D[i],\{\mathbf{W}[g,i]\}_{g=1}^{N_\tau N_\nu},\mathbf{\Theta}_n[i],\alpha[i],\mathbf{R}_z[i]\big\}.
-\]
+$$
 
 **本仓库接口**（PPO-SAC 等智能体一致）：  
 
-- **离散部分**：\(a^d_i = (d_I,d_D)\)，其中 \(d_I\in\{0,\ldots,N_I-1\}\)、\(d_D\in\{0,\ldots,N_D-1\}\)，对应 I-UAV / D-UAV 在候选点集 `dp_I`、`dp_D` 中的索引。  
-- **连续部分**：\(\mathbf{u}_i\in[-1,1]^{d_c}\)，\(d_c = M + N + 2\)（`env.cont_dim`）。环境 `decode_action` 将其映射为物理量：
+- **离散部分**：$a^d_i = (d_I,d_D)$，其中 $d_I\in\{0,\ldots,N_I-1\}$、$d_D\in\{0,\ldots,N_D-1\}$，对应 I-UAV / D-UAV 在候选点集 `dp_I`、`dp_D` 中的索引。  
+- **连续部分**：$\mathbf{u}_i\in[-1,1]^{d_c}$，$d_c = M + N + 2$（`env.cont_dim`）。环境 `decode_action` 将其映射为物理量：
 
-  - **用户功率份额**：\( \mathbf{p}_f = \mathrm{softmax}(\mathrm{clip}(\mathbf{u}_{1:M})) \)（与总功率/AN 分割一起在 `\_build_beamforming` 中使用）；  
-  - **IRS 相位**：\(\phi_n = \pi(\mathbf{u}_{M:M+N}+1) \in [0,2\pi]\)；  
-  - **AN 功率占比**：\(f_{\mathrm{AN}} = \mathrm{clip}\big((u_{M+N}+1)/2,\,[0.05,0.5]\big)\)；  
-  - **卸载比例**：\(\alpha = \mathrm{clip}\big((u_{d_c}+1)/2,\,[0.05,0.95]\big)\)。
+  - **用户功率份额**：$\mathbf{p}_f = \mathrm{softmax}(\mathrm{clip}(\mathbf{u}_{1:M}))$（与总功率/AN 分割一起在 `_build_beamforming` 中使用）；  
+  - **IRS 相位**：$\phi_n = \pi(\mathbf{u}_{M:M+N}+1) \in [0,2\pi]$；  
+  - **AN 功率占比**：$f_{\mathrm{AN}} = \mathrm{clip}\big((u_{M+N}+1)/2,\,[0.05,0.5]\big)$；  
+  - **卸载比例**：$\alpha = \mathrm{clip}\big((u_{d_c}+1)/2,\,[0.05,0.95]\big)$。
 
-下行 **ZF 波束** 与 **零空间 AN 协方差** 在环境中由 \((\mathbf{p}_f,\phi,f_{\mathrm{AN}})\) 与当前信道 **解析生成**，网络不直接输出 \(\mathbf{W}[g]\)、\(\mathbf{R}_z\) 的全部复元素，从而压缩连续动作维数。
+下行 **ZF 波束** 与 **零空间 AN 协方差** 在环境中由 $(\mathbf{p}_f,\phi,f_{\mathrm{AN}})$ 与当前信道 **解析生成**，网络不直接输出 $\mathbf{W}[g]$、$\mathbf{R}_z$ 的全部复元素，从而压缩连续动作维数。
 
 ### 奖励函数
 
 **即时奖励（加权结构）**：
 
-\[
+$$
 r_i=\omega_1\sum_{m=1}^{M}R^{\mathrm{Sec}}_{u_m}[i]+\omega_2 S_{\mathrm{T}}[i]-\omega_3 L(\zeta,\mathbf{R}_{\mathbf{x}_B}[i])-\omega_4 \Phi_i,
-\]
+$$
 
-其中 \(R^{\mathrm{Sec}}_{u_m}\) 为合法速率与窃听速率差（取非负后求和），\(S_{\mathrm{T}}\) 为感知效用，\(L\) 为波束图失配项，\(\Phi_i\) 为能耗/时隙/飞行可行性及（可选）交通风险的惩罚。
+其中 $R^{\mathrm{Sec}}_{u_m}$ 为合法速率与窃听速率差（取非负后求和），$S_{\mathrm{T}}$ 为感知效用，$L$ 为波束图失配项，$\Phi_i$ 为能耗/时隙/飞行可行性及（可选）交通风险的惩罚。
 
 **实现中**（`config.py`：`OMEGA_*`、`R_SEC_NORM`、`S_T_NORM`、`BP_MSE_NORM`、`PENALTY_NORM`、`REWARD_SCALE`）使用 **归一化标度** 的稳定形式：
 
-\[
+$$
 r_i = \eta \left(
 \omega_1 \frac{R_{\mathrm{sec}}}{R_{\mathrm{sec}}^{\mathrm{norm}}}
 + \omega_2 \frac{S_{\mathrm{T}}}{S_{\mathrm{T}}^{\mathrm{norm}}}
 - \omega_3 \frac{\mathrm{MSE}_{\mathrm{bp}}}{\mathrm{MSE}^{\mathrm{norm}}}
 - \omega_4 \frac{\Phi_i}{\Phi^{\mathrm{norm}}}
 \right),
-\]
+$$
 
-其中 \(R_{\mathrm{sec}}\) 为系统保密和速率（各用户保密速率非负部分之和），\(S_{\mathrm{T}}=\log_2(1+\Gamma_{\mathrm{T}}^{\mathrm{ITS}})\)（交通场可调制感知 SNR），\(\mathrm{MSE}_{\mathrm{bp}}\) 为角度格上相对期望波束的误差；\(\Phi_i\) 含 \(E_D,E_I\) 超限、飞行时隙违约及 `TRAFFIC_UAV_RISK_PENALTY` 等；\(\eta=\) `REWARD_SCALE`。最后对 \(r_i\) 做 `nan_to_num` 与幅值截断。
+其中 $R_{\mathrm{sec}}$ 为系统保密和速率（各用户保密速率非负部分之和），$S_{\mathrm{T}}=\log_2(1+\Gamma_{\mathrm{T}}^{\mathrm{ITS}})$（交通场可调制感知 SNR），$\mathrm{MSE}_{\mathrm{bp}}$ 为角度格上相对期望波束的误差；$\Phi_i$ 含 $E_D,E_I$ 超限、飞行时隙违约及 `TRAFFIC_UAV_RISK_PENALTY` 等；$\eta=$ `REWARD_SCALE`。最后对 $r_i$ 做 `nan_to_num` 与幅值截断。
 
-折扣因子 \(\gamma\) 在 `config.GAMMA`（默认 0.99），用于 DRL 更新。
+折扣因子 $\gamma$ 在 `config.GAMMA`（默认 0.99），用于 DRL 更新。
 
 ## 功能概览
 
