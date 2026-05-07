@@ -29,7 +29,7 @@
 **符号化状态（高层）**（时隙 $i$），汇集信道、感知、交通与历史信息：
 
 $$
-s_i = \big\{\{\mathbf{h}_{D,I}[i]\},\{\mathbf{G}_{B,I}[i]\},\{\mathbf{H}_{u_m}[i]\},\mathbf{H}_{E}[i],\mathbf{H}_{\mathrm{T}}[i],\varrho(Q_I[i],i),\varrho(Q_D[i],i),\{Q_{u_m}[i]\},\{\varrho(Q_{u_m}[i],i)\},L(\zeta,\mathbf{R}_{\mathbf{x}_B}[i]),a_{i-1},r_i\big\},
+s_i = \left\{\{\mathbf{h}_{D,I}[i]\},\{\mathbf{G}_{B,I}[i]\},\{\mathbf{H}_{u_m}[i]\},\mathbf{H}_{E}[i],\mathbf{H}_{\mathrm{T}}[i],\varrho(Q_I[i],i),\varrho(Q_D[i],i),\{Q_{u_m}[i]\},\{\varrho(Q_{u_m}[i],i)\},L(\zeta,\mathbf{R}_{\mathbf{x}_B}[i]),a_{i-1},r_i\right\},
 $$
 
 其中 $\varrho(\cdot,i)$ 为交通拥塞场；$L(\zeta,\mathbf{R}_{\mathbf{x}_B}[i])$ 表示与期望波束图相关的失配（实现中通过波束图 MSE 进入 **奖励** 而非直接逐元素展开在状态中）；$a_{i-1}, r_i$ 为上一动作与当前即时奖励记忆。
@@ -58,7 +58,7 @@ $$
 **完整射频表征下的联合动作**（时隙 $i$：逐 RE 波束矩阵 + 协方差等）：
 
 $$
-a_i = \big\{\mathbf{q}_I[i],\mathbf{q}_D[i],\{\mathbf{W}[g,i]\}_{g=1}^{N_\tau N_\nu},\mathbf{\Theta}_n[i],\alpha[i],\mathbf{R}_z[i]\big\}.
+a_i = \left\{\mathbf{q}_I[i],\mathbf{q}_D[i],\{\mathbf{W}[g,i]\}_{g=1}^{N_\tau N_\nu},\mathbf{\Theta}_n[i],\alpha[i],\mathbf{R}_z[i]\right\}.
 $$
 
 **本仓库接口**（PPO-SAC 等智能体一致）：  
@@ -68,8 +68,8 @@ $$
 
   - **用户功率份额**：$\mathbf{p}_f = \mathrm{softmax}(\mathrm{clip}(\mathbf{u}_{1:M}))$（与总功率/AN 分割一起在 `_build_beamforming` 中使用）；  
   - **IRS 相位**：$\phi_n = \pi(\mathbf{u}_{M:M+N}+1) \in [0,2\pi]$；  
-  - **AN 功率占比**：$f_{\mathrm{AN}} = \mathrm{clip}\big((u_{M+N}+1)/2,\,[0.05,0.5]\big)$；  
-  - **卸载比例**：$\alpha = \mathrm{clip}\big((u_{d_c}+1)/2,\,[0.05,0.95]\big)$。
+  - **AN 功率占比**：$f_{\mathrm{AN}} = \mathrm{clip}\left((u_{M+N}+1)/2,\,[0.05,0.5]\right)$；  
+  - **卸载比例**：$\alpha = \mathrm{clip}\left((u_{d_c}+1)/2,\,[0.05,0.95]\right)$。
 
 下行 **ZF 波束** 与 **零空间 AN 协方差** 在环境中由 $(\mathbf{p}_f,\phi,f_{\mathrm{AN}})$ 与当前信道 **解析生成**，网络不直接输出 $\mathbf{W}[g]$、$\mathbf{R}_z$ 的全部复元素，从而压缩连续动作维数。
 
