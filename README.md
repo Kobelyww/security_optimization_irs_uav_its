@@ -24,7 +24,6 @@
 
 本节对应 **`environment.py`** 中的观测、动作与奖励；状态对高维信道做了 **统计摘要**。
 
-> 若在 GitHub 网页上行内公式仍显示为源码，请到 **Settings → Appearance** 打开 **Markdown math expressions**。行内数学已按 GitHub 文档用「美元符 + 反引号」包裹公式内容；独立公式使用 **math** 围栏代码块（与官方文档一致），并改用 `\lbrace`/`\rbrace` 与圆括号代替 `\left\{`/`\big` 等，以降低渲染器报错概率。
 
 ### 状态空间 $`\mathcal{S}`$
 
