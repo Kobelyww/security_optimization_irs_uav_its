@@ -1,0 +1,6 @@
+Figures included for GitHub / code release (minimal set).
+
+  system_model.jpg                  — scenario / system model (Fig.1 style)
+  algorithm_framework.png           — proposed DRL / algorithm block diagram
+  training_convergence.png         — training convergence curves
+  isac_beampattern_detection.png   — normalized beampattern vs azimuth (ISAC)
