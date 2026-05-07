@@ -192,25 +192,6 @@ s2, r, done, info = env.step(aI, aD, cont)
 - 训练收敛示意：`training_convergence.png`
 - ISAC 归一化波束图：`isac_beampattern_detection.png`
 
-## 推送到 GitHub（[Kobelyww](https://github.com/Kobelyww/)）
-
-本地 `origin` 已为 **SSH**：
-
-`git@github.com:Kobelyww/security_optimization_irs_uav_its.git`
-
-（若需改回 HTTPS：`git remote set-url origin https://github.com/Kobelyww/security_optimization_irs_uav_its.git`）
-
-1. 在 GitHub 上 **New repository**，仓库名 **`security_optimization_irs_uav_its`**，**不要**勾选 “Add a README”（空仓库）。
-2. 本机已配置 [SSH 密钥](https://docs.github.com/en/authentication/connecting-to-github-with-ssh) 后，在该目录执行：
-
-```bash
-git push -u origin main
-```
-
-未用 SSH 时可用 HTTPS + [Personal Access Token](https://docs.github.com/en/authentication/keeping-your-account-and-data-secure/managing-your-personal-access-tokens)，或 **GitHub Desktop**。
-
-若远程仓库名不同：`git remote set-url origin <你的 SSH 或 HTTPS URL>`。
-
 ## 开源与引用
 
 使用本仓库请注明来源与仓库链接。需要许可证时请在仓库根目录自行添加 `LICENSE`。
