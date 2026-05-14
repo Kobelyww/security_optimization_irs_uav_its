@@ -6,6 +6,8 @@ Simulation code package **`security_optimization_irs_uav_its`**.
 
 This directory provides an **integrated sensing and communication (ISAC)** simulation environment in an **IRS-assisted multi-UAV** setting, together with **hybrid discrete/continuous-action** deep reinforcement learning (DRL) agents for experiments on **joint secure communication and radar sensing** resource allocation.
 
+**Publication.** The underlying paper has been **accepted for publication** in *[Physical Communication](https://www.sciencedirect.com/journal/physical-communication)* (PHYCOM, Elsevier).
+
 ## Modeling highlights
 
 - **Network topology**: A multi-antenna BS-MEC serves ground legitimate users; a **D-UAV** collects and offloads data; an **I-UAV** carries an IRS and assists both the **D-UAV→BS-MEC offloading link** and **downlink ISAC**; an eavesdropper (EAV) and a sensing target are present.
@@ -197,7 +199,7 @@ See `figures/MANIFEST.txt`. Currently includes:
 ## License and citation
 
 - **No `LICENSE` file is bundled**; add one at the repo root if you need explicit terms.
-- If you use this code, please cite or credit the repository you obtained it from.
+- If you use this code, please cite or credit **this GitHub repository** and, once available, **the forthcoming *Physical Communication* (PHYCOM) paper** derived from this work.
 
 ## Notes
 

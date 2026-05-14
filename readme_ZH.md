@@ -6,6 +6,8 @@
 
 本目录提供 **IRS 辅助 UAV** 场景下的 **通感一体化（ISAC）** 仿真环境与 **混合离散/连续动作** 的 DRL 实现，用于安全与感知联合资源分配实验。
 
+**发表信息**：对应论文已被 **Elsevier *Physical Communication*（PHYCOM）** 期刊录用。[期刊主页（ScienceDirect）](https://www.sciencedirect.com/journal/physical-communication)
+
 ## 建模要点
 
 - **网络拓扑**：BS-MEC（多天线）服务地面合法用户；**D-UAV** 负责数据采集与卸载，**I-UAV** 携带 IRS，同时辅助 **D-UAV→BS-MEC 卸载链路** 与 **下行 ISAC**；存在窃听者（EAV）与待感知目标。
@@ -197,7 +199,7 @@ s2, r, done, info = env.step(aI, aD, cont)
 
 ## 开源与引用
 
-使用本仓库请注明来源与仓库链接。需要许可证时请在仓库根目录自行添加 `LICENSE`。
+使用本仓库请注明 **GitHub 仓库链接**，并在正式刊出后一并引用 ***Physical Communication*（PHYCOM）** 上的对应论文。需要许可证时请在仓库根目录自行添加 `LICENSE`。
 
 ## 说明
 
